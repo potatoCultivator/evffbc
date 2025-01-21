@@ -9,9 +9,9 @@ import jsconfigPaths from 'vite-jsconfig-paths';
 export default defineConfig({
   plugins: [react(), jsconfigPaths()],
   // https://github.com/jpuri/react-draft-wysiwyg/issues/1317
-  base: '/free',
+  base: '/',
   define: {
-    global: 'window'
+    global: 'window'  
   },
   resolve: {
     // alias: [
