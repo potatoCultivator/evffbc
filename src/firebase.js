@@ -6,15 +6,14 @@ import { getAuth } from 'firebase/auth';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyAl73NmpZpzGSEJfgRgs2Jbf1KytUZpiTk",
-    authDomain: "keswick-app.firebaseapp.com",
-    projectId: "keswick-app",
-    storageBucket: "keswick-app.firebasestorage.app",
-    messagingSenderId: "698961334249",
-    appId: "1:698961334249:web:1050584c18086ceb7c8578",
-    measurementId: "G-8JRG4KDGNT"
+  apiKey: "AIzaSyA5LtTXQvLjzYSik6sFWuqkoWpJDMv5Qwk",
+  authDomain: "evffbcannualconference-5c6d0.firebaseapp.com",
+  projectId: "evffbcannualconference-5c6d0",
+  storageBucket: "evffbcannualconference-5c6d0.firebasestorage.app",
+  messagingSenderId: "640156191968",
+  appId: "1:640156191968:web:62544d573e4aecfbe99485",
+  measurementId: "G-EPKSWPGYJ2"
 };
-
 let app;
 
 if (!getApps().length) {

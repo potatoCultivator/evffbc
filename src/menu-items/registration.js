@@ -1,45 +1,64 @@
 // assets
-import { IconKey } from '@tabler/icons-react';
+import { IconForms, IconListCheck, IconUserEdit } from '@tabler/icons-react';
 
 // constant
 const icons = {
-  IconKey
+  IconForms,
+  IconListCheck,
+  IconUserEdit
 };
 
 // ==============================|| EXTRA PAGES MENU ITEMS ||============================== //
 
 const registration = {
-  id: 'registration_management',
+  id: 'registration',
   title: 'Registration Management',
-  caption: 'Overview of Registration Pages and Processes',
+  caption: 'Overview of Registration Pages',
   type: 'group',
   children: [
     {
-      id: 'registrationf',
-      title: 'Registrationf',
+      id: 'online-registration',
+      title: 'Online Registration',
       type: 'collapse',
-      icon: icons.IconKey,
+      icon: icons.IconForms,
+      caption: 'For Pre-Event Registration',
       children: [
         {
           id: 'confirmation',
-          title: 'Confirmation',
+          title: 'Pending Registrants',
           type: 'item',
-        //   url: '/pages/login/login3',
-          target: true
+          url: '/registration/confirmation',
+          icon: icons.IconUserEdit
         },
         {
-          id: 'registered_conferee',
+          id: 'registered-conferee',
           title: 'Registered Conferee',
           type: 'item',
-        //   url: '/pages/register/register3',
-          target: true
+          url: '/registration/registered-conferee',
+          icon: icons.IconListCheck
+        }
+      ]
+    },
+    {
+      id: 'onsite-registration',
+      title: 'Onsite Registration',
+      type: 'collapse',
+      icon: icons.IconForms,
+      caption: 'For Event Day Registration',
+      children: [
+        {
+          id: 'pre-registrwwtion',
+          title: 'Pre-Registration',
+          type: 'item',
+          url: '/registration/confirmation',
+          icon: icons.IconUserEdit
         },
         {
-          id: 'id_release',
-          title: 'ID Release',
+          id: 'registered-coenferwee',
+          title: 'Onsite Registration',
           type: 'item',
-        //   url: '/pages/register/register3',
-          target: true
+          url: '/registration/registered-conferee',
+          icon: icons.IconListCheck
         }
       ]
     }
@@ -47,3 +66,4 @@ const registration = {
 };
 
 export default registration;
+

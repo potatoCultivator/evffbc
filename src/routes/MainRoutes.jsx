@@ -16,6 +16,8 @@ const UtilsShadow = Loadable(lazy(() => import('views/utilities/Shadow')));
 
 // sample page routing
 const SamplePage = Loadable(lazy(() => import('views/sample-page')));
+const RegisteredConferee = Loadable(lazy(() => import('views/registered-conferee')));
+const Confirmation = Loadable(lazy(() => import('views/confirmation')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -23,6 +25,19 @@ const MainRoutes = {
   path: '/',
   element: <MainLayout />,
   children: [
+    {
+      path: '/',
+      element: <DashboardDefault />
+    },
+    {
+      path: 'dashboard',
+      children: [
+        {
+          path: 'default',
+          element: <DashboardDefault />
+        }
+      ]
+    },
     {
       path: 'utils',
       children: [
@@ -51,13 +66,36 @@ const MainRoutes = {
       ]
     },
     {
-      path: 'dashboard',
-      element: <DashboardDefault />
+      path: 'registration',
+      children: [
+        {
+          path: 'confirmation',
+          element: <Confirmation />
+        },
+        {
+          path: 'registered-conferee',
+          element: <RegisteredConferee />
+        }
+      ]
     },
-    {
-      path: '',
-      element: <DashboardDefault />
-    },
+    // {
+    //   path: 'icons',
+    //   children: [
+    //     {
+    //       path: 'tabler-icons',
+    //       element: <UtilsTablerIcons />
+    //     }
+    //   ]
+    // },
+    // {
+    //   path: 'icons',
+    //   children: [
+    //     {
+    //       path: 'material-icons',
+    //       element: <UtilsMaterialIcons />
+    //     }
+    //   ]
+    // },
     {
       path: 'sample-page',
       element: <SamplePage />
