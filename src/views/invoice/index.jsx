@@ -12,8 +12,13 @@ import {
 
 const Invoice = () => {
     const registrationData = JSON.parse(localStorage.getItem('registrationData') || '[]');
-    const REGISTRATION_FEE = 200;
-    const totalAmount = registrationData.length * REGISTRATION_FEE;
+    
+    const calculateFee = (organization) => {
+        return organization?.toLowerCase() === 'junior' ? 100 : 200;
+    };
+
+    const totalAmount = registrationData.reduce((sum, participant) => 
+        sum + calculateFee(participant.organization), 0);
 
     // Updated utility function with better error handling
     const capitalizeWords = (str) => {
@@ -98,7 +103,7 @@ const Invoice = () => {
                             <Grid container spacing={2} alignItems="center">
                                 <Grid item xs={12} sm={6}>
                                     <Typography variant="body2" color="textSecondary">
-                                        Registration Fee: ₱{REGISTRATION_FEE}.00 per person
+                                        Registration Fee: ₱200 per person (₱100 for Juniors)
                                     </Typography>
                                     <Typography variant="body2" color="textSecondary">
                                         Number of Registrants: {registrationData.length}

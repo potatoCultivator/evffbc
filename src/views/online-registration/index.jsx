@@ -225,6 +225,14 @@ const OnlineRegistration = () => {
             .join(' ');
     };
 
+    const calculateFee = (organization) => {
+        return organization?.toLowerCase() === 'junior' ? 100 : 200;
+    };
+
+    const getTotalAmount = () => {
+        return batch.reduce((sum, person) => sum + calculateFee(person.organization), 0);
+    };
+
     return (
         <Container 
             maxWidth={false}
@@ -287,7 +295,7 @@ const OnlineRegistration = () => {
                                         borderColor: 'warning.main'
                                     }}
                                 >
-                                    Important: Please ensure your GCash payment amount matches exactly ₱{batch.length * REGISTRATION_FEE}.00
+                                    Important: Please ensure your GCash payment amount matches exactly ₱{getTotalAmount()}.00
                                     {batch.length > 0 ? ` for ${batch.length} participant${batch.length > 1 ? 's' : ''}` : ''}
                                 </Typography>
                             </Box>
@@ -363,10 +371,10 @@ const OnlineRegistration = () => {
                                         textAlign: 'right'
                                     }}>
                                         <Typography variant="h6" sx={{ color: '#1e441f' }}>
-                                            Total Amount: ₱{batch.length * REGISTRATION_FEE}.00
+                                            Total Amount: ₱{getTotalAmount()}.00
                                         </Typography>
                                         <Typography variant="caption" color="textSecondary">
-                                            Registration fee: ₱{REGISTRATION_FEE} per person
+                                            Registration fee: ₱200 per person (₱100 for Juniors)
                                         </Typography>
                                     </Box>
                                     <Typography variant="body2" color="textSecondary" align="center">

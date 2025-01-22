@@ -90,6 +90,9 @@ const Confirmation = () => {
     };
 
     const handleConfirmAction = async () => {
+        const totalAmount = confirmDialog.registrants?.reduce((sum, registrant) => 
+            sum + calculateFee(registrant.organization), 0) || 0;
+            
         if (confirmDialog.action && confirmDialog.registrants) {
             await handleGroupStatusUpdate(confirmDialog.registrants, confirmDialog.action);
             setConfirmDialog({ ...confirmDialog, open: false });
@@ -121,6 +124,10 @@ const Confirmation = () => {
 
     const formatRefCode = (code) => {
         return code?.toUpperCase() || '';
+    };
+
+    const calculateFee = (organization) => {
+        return organization?.toLowerCase() === 'junior' ? 100 : 200;
     };
 
     const StatusChip = ({ status }) => (
@@ -162,7 +169,8 @@ const Confirmation = () => {
 
     const ReferenceRow = ({ reference_code, registrants }) => {
         const isExpanded = expandedCode === reference_code;
-        const totalAmount = registrants.length * 200;
+        const totalAmount = registrants.reduce((sum, registrant) => 
+            sum + calculateFee(registrant.organization), 0);
 
         const LabelValue = ({ label, value }) => (
             <Box>
