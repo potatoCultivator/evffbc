@@ -1,23 +1,6 @@
 import { firestore } from '../firebase'; // Adjust the path as necessary
 import { collection, getDocs, onSnapshot, query, where, writeBatch, doc, runTransaction, arrayUnion, updateDoc, addDoc, deleteDoc } from "firebase/firestore";
 
-export async function registerOnline(formData) {
-    const confereeRef = collection(firestore, 'conferee');
-    const confereeData = {
-      name: formData.name,
-      organization: formData.organization,
-      sector: formData.sector,
-      gender: formData.gender,
-      referenceCode: formData.referenceCode,
-      churchName: formData.church,
-      regType: 'online',
-      status: 'pending',
-      hasID: true,
-      dateAdded: new Date()
-    };
-    await addDoc(confereeRef, confereeData);
-  }
-  
   function getOnlineRegStatus(callback) {
     const collectionRef = collection(firestore, 'onlineregstatus');
     
@@ -78,5 +61,43 @@ export async function registerOnline(formData) {
     }
   }
 
-export { getOnlineRegStatus, uploadBatchConferees };
+  async function uploadBatchConfereesOnsite(conferees) {
+    try {
+      const batch = writeBatch(firestore);
+      const confereeRef = collection(firestore, 'conferee');
+  
+      // Log the incoming data for debugging
+      console.log('Uploading batch data:', conferees);
+  
+      conferees.forEach(conferee => {
+        const newDocRef = doc(confereeRef);
+        const confereeData = {
+          name: conferee.name,
+          church: conferee.church,
+          sector: conferee.sector,
+          gender: conferee.gender,
+          organization: conferee.organization,
+          email: conferee.email,
+          status: 'pending',
+          reg_type: 'onsite',
+          has_id: false,
+          date_added: new Date(),
+          
+        };
+        
+        // Log each document being added
+        console.log('Adding document:', confereeData);
+        batch.set(newDocRef, confereeData);
+      });
+  
+      await batch.commit();
+      console.log('Batch upload completed successfully');
+      return true;
+    } catch (error) {
+      console.error('Error in batch upload:', error);
+      throw error;
+    }
+  }
+
+export { getOnlineRegStatus, uploadBatchConferees, uploadBatchConfereesOnsite };
 

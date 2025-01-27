@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, sendPasswordResetEmail, signInWithRedirect, getRedirectResult } from 'firebase/auth';
+import { auth } from '../../../../firebase';  // Import the initialized auth instance
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
@@ -18,6 +20,10 @@ import InputLabel from '@mui/material/InputLabel';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
 
 // third party
 import * as Yup from 'yup';
@@ -34,14 +40,147 @@ import Google from 'assets/images/icons/social-google.svg';
 
 // ============================|| FIREBASE - LOGIN ||============================ //
 
-const AuthLogin = ({ ...others }) => {
+const AuthLogin = ({ onError, ...others }) => {
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
   const customization = useSelector((state) => state.customization);
   const [checked, setChecked] = useState(true);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
+  const showError = (message) => {
+    setErrorMessage(message);
+    setOpenDialog(true);
+  };
 
   const googleHandler = async () => {
-    console.error('Login');
+    const auth = getAuth();
+    const provider = new GoogleAuthProvider();
+    provider.addScope('email');
+    provider.addScope('profile');
+
+    try {
+      // Detect device type
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+      if (isMobile) {
+        // Use redirect for mobile devices
+        await signInWithRedirect(auth, provider);
+      } else {
+        // Use popup for desktop
+        const result = await signInWithPopup(auth, provider);
+        handleSignInResult(result);
+      }
+    } catch (error) {
+      console.error('Google Sign In Error:', error);
+      let errorMessage = 'Google sign-in failed. Please try again.';
+
+      switch (error.code) {
+        case 'auth/popup-blocked':
+          errorMessage = 'Please enable popups for this website and try again.';
+          break;
+        case 'auth/popup-closed-by-user':
+          errorMessage = 'Sign-in was cancelled. Please try again.';
+          break;
+        case 'auth/cancelled-popup-request':
+          errorMessage = 'Only one sign-in window allowed at a time. Please try again.';
+          break;
+        case 'auth/network-request-failed':
+          errorMessage = 'Network error. Please check your connection and try again.';
+          break;
+      }
+
+      onError(errorMessage);
+    }
+  };
+
+  const handleSignInResult = (result) => {
+    if (result.user.email === 'evffbcannualconference@gmail.com') {
+      const userData = {
+        uid: result.user.uid,
+        email: result.user.email,
+        displayName: result.user.displayName,
+        photoURL: result.user.photoURL,
+        lastLogin: new Date().toISOString()
+      };
+      
+      localStorage.setItem('user', JSON.stringify(userData));
+      window.location.href = '/dashboard';
+    } else {
+      onError('Please use the authorized email address');
+      window.location.href = '/online-registration';
+    }
+  };
+
+  useEffect(() => {
+    const auth = getAuth();
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result) {
+          handleSignInResult(result);
+        }
+      })
+      .catch((error) => {
+        console.error('Redirect Sign In Error:', error);
+        onError('Google sign-in failed. Please try again.');
+      });
+    // Check for remembered user
+    const rememberedUser = localStorage.getItem('rememberedUser');
+    if (rememberedUser) {
+      const userData = JSON.parse(rememberedUser);
+      setChecked(true);
+      // You can pre-fill the email if needed
+    }
+  }, []);
+
+  const handleForgotPassword = async () => {
+    try {
+      await sendPasswordResetEmail(auth, 'evffbcannualconference@gmail.com');
+      showError('Password reset email has been sent to evffbcannualconference@gmail.com');
+    } catch (error) {
+      showError('Error sending password reset email: ' + error.message);
+    }
+  };
+
+  const handleSubmit = async (values, { setErrors, setSubmitting }) => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        values.email,
+        values.password
+      );
+
+      if (userCredential.user.email === 'evffbcannualconference@gmail.com') {
+        if (checked) {
+          localStorage.setItem('rememberedUser', JSON.stringify({
+            email: values.email,
+            timestamp: new Date().getTime()
+          }));
+        }
+        
+        localStorage.setItem('user', JSON.stringify(userCredential.user));
+        window.location.href = '/dashboard';
+      } else {
+        showError('Please use the authorized email address');
+        window.location.href = '/online-registration';
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      // More specific error messages
+      const errorMessage = {
+        'auth/invalid-credential': 'Invalid email or password',
+        'auth/user-not-found': 'Account not found',
+        'auth/wrong-password': 'Invalid password',
+        'auth/too-many-requests': 'Too many attempts. Please try again later'
+      }[error.code] || error.message;
+      
+      showError(errorMessage);
+    }
+    setSubmitting(false);
   };
 
   const [showPassword, setShowPassword] = useState(false);
@@ -116,7 +255,7 @@ const AuthLogin = ({ ...others }) => {
 
       <Formik
         initialValues={{
-          email: '',
+          email: 'evffbcannualconference@gmail.com', // Set default email
           password: '',
           submit: null
         }}
@@ -124,6 +263,7 @@ const AuthLogin = ({ ...others }) => {
           email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
           password: Yup.string().max(255).required('Password is required')
         })}
+        onSubmit={handleSubmit}
       >
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
           <form noValidate onSubmit={handleSubmit} {...others}>
@@ -184,7 +324,12 @@ const AuthLogin = ({ ...others }) => {
                 }
                 label="Remember me"
               />
-              <Typography variant="subtitle1" color="secondary" sx={{ textDecoration: 'none', cursor: 'pointer' }}>
+              <Typography 
+                variant="subtitle1" 
+                color="secondary" 
+                sx={{ textDecoration: 'none', cursor: 'pointer' }}
+                onClick={handleForgotPassword}
+              >
                 Forgot Password?
               </Typography>
             </Stack>
@@ -204,6 +349,15 @@ const AuthLogin = ({ ...others }) => {
           </form>
         )}
       </Formik>
+      <Dialog open={openDialog} onClose={handleCloseDialog}>
+        <DialogTitle>Authentication Error</DialogTitle>
+        <DialogContent>
+          {errorMessage}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog}>Close</Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };

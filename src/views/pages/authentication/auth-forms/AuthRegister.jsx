@@ -32,10 +32,11 @@ import { strengthColor, strengthIndicator } from 'utils/password-strength';
 // assets
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { getAuth, signInWithRedirect, signInWithPopup, GoogleAuthProvider, getRedirectResult } from 'firebase/auth';
 
 // ===========================|| FIREBASE - REGISTER ||=========================== //
 
-const AuthRegister = ({ ...others }) => {
+const AuthRegister = ({ onError, ...others }) => {
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
   const customization = useSelector((state) => state.customization);
@@ -46,8 +47,79 @@ const AuthRegister = ({ ...others }) => {
   const [level, setLevel] = useState();
 
   const googleHandler = async () => {
-    console.error('Register');
+    const auth = getAuth();
+    const provider = new GoogleAuthProvider();
+    provider.addScope('email');
+    provider.addScope('profile');
+
+    try {
+      // Detect device type
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+      if (isMobile) {
+        // Use redirect for mobile devices
+        await signInWithRedirect(auth, provider);
+      } else {
+        // Use popup for desktop
+        const result = await signInWithPopup(auth, provider);
+        handleSignInResult(result);
+      }
+    } catch (error) {
+      console.error('Google Sign In Error:', error);
+      let errorMessage = 'Google sign-in failed. Please try again.';
+
+      switch (error.code) {
+        case 'auth/popup-blocked':
+          errorMessage = 'Please enable popups for this website and try again.';
+          break;
+        case 'auth/popup-closed-by-user':
+          errorMessage = 'Sign-in was cancelled. Please try again.';
+          break;
+        case 'auth/cancelled-popup-request':
+          errorMessage = 'Only one sign-in window allowed at a time. Please try again.';
+          break;
+        case 'auth/network-request-failed':
+          errorMessage = 'Network error. Please check your connection and try again.';
+          break;
+      }
+
+      onError(errorMessage);
+    }
   };
+
+  const handleSignInResult = (result) => {
+    // Validate the email
+    if (result.user.email === 'evffbcannualconference@gmail.com') {
+      // Store additional user info if needed
+      const userData = {
+        uid: result.user.uid,
+        email: result.user.email,
+        displayName: result.user.displayName,
+        photoURL: result.user.photoURL,
+        lastLogin: new Date().toISOString()
+      };
+      
+      localStorage.setItem('user', JSON.stringify(userData));
+      window.location.href = '/dashboard';
+    } else {
+      onError('Please use the authorized email address (evffbcannualconference@gmail.com)');
+    }
+  };
+
+  useEffect(() => {
+    const auth = getAuth();
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result) {
+          handleSignInResult(result);
+        }
+      })
+      .catch((error) => {
+        console.error('Redirect Sign In Error:', error);
+        onError('Google sign-in failed. Please try again.');
+      });
+    changePassword('123456');
+  }, []);
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
@@ -62,10 +134,6 @@ const AuthRegister = ({ ...others }) => {
     setStrength(temp);
     setLevel(strengthColor(temp));
   };
-
-  useEffect(() => {
-    changePassword('123456');
-  }, []);
 
   return (
     <>
