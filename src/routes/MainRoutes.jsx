@@ -1,5 +1,4 @@
 import { lazy } from 'react';
-import { Navigate } from 'react-router-dom';
 
 // project imports
 import MainLayout from 'layout/MainLayout';
@@ -17,33 +16,12 @@ const UtilsShadow = Loadable(lazy(() => import('views/utilities/Shadow')));
 
 // sample page routing
 const SamplePage = Loadable(lazy(() => import('views/sample-page')));
-const RegisteredConferee = Loadable(lazy(() => import('views/registered-conferee')));
-const OnlineRegPending = Loadable(lazy(() => import('views/onlinereg-pending')));
-const OnsiteRegPending = Loadable(lazy(() => import('views/onsitereg-pending')));
 
-function RequireAuth({ children }) {
-  const user = localStorage.getItem('user');
-  try {
-    const parsedUser = JSON.parse(user);
-    if (!parsedUser || parsedUser.email !== 'evffbcannualconference@gmail.com') {
-      return <Navigate to="/prereg" replace />;
-    }
-    return children;
-  } catch (error) {
-    console.error('Auth error:', error);
-    return <Navigate to="/prereg" replace />;
-  }
-}
-  
 // ==============================|| MAIN ROUTING ||============================== //
 
 const MainRoutes = {
   path: '/',
-  element: (
-    <RequireAuth>
-      <MainLayout />
-    </RequireAuth>
-  ),
+  element: <MainLayout />,
   children: [
     {
       path: '/',
@@ -85,19 +63,6 @@ const MainRoutes = {
         }
       ]
     },
-    {
-      path: 'prereg-pending',
-      element: <OnlineRegPending />
-    },
-    {
-      path: 'onsitereg-pending',
-      element: <OnsiteRegPending />
-    },
-    {
-      path: 'registered-conferee',
-      element: <RegisteredConferee />
-    },
-    
     // {
     //   path: 'icons',
     //   children: [

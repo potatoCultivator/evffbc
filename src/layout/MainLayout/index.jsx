@@ -6,7 +6,6 @@ import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { Container } from '@mui/material';
 
 // project imports
 import { CssBaseline, styled, useTheme } from '@mui/material';
@@ -58,7 +57,6 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' && pr
 const MainLayout = () => {
   const theme = useTheme();
   const matchDownMd = useMediaQuery(theme.breakpoints.down('md'));
-  const matchDownSm = useMediaQuery(theme.breakpoints.down('sm'));
   // Handle left drawer
   const leftDrawerOpened = useSelector((state) => state.customization.opened);
   const dispatch = useDispatch();
@@ -90,13 +88,9 @@ const MainLayout = () => {
 
       {/* main content */}
       <Main theme={theme} open={leftDrawerOpened}>
-      {!matchDownSm && (
-          <Container maxWidth="lg" sx={{ mb: 4 }}>
-            <Breadcrumbs separator={IconChevronRight} navigation={navigation} icon title rightAlign />
-            <Outlet />
-          </Container>
-        )}
-        {matchDownSm && <Outlet />}
+        {/* breadcrumb */}
+        <Breadcrumbs separator={IconChevronRight} navigation={navigation} icon title rightAlign />
+        <Outlet />
       </Main>
       {/* <Customization /> */}
     </Box>

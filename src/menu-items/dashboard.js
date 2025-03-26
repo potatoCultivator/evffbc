@@ -12,7 +12,7 @@ const dashboard = {
   type: 'group',
   children: [
     {
-      id: 'dashboard',
+      id: 'default',
       title: 'Dashboard',
       type: 'item',
       url: '/dashboard/default',
